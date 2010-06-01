@@ -1,7 +1,7 @@
 
 -module(prt).
 
--include("prt.hrl)".
+-include("prt.hrl").
 
 -export([
 	start/0, stop/1, stop/0, init/0, init2/0, dodrop/0, chk/0,
