@@ -1,13 +1,13 @@
 %%%-------------------------------------------------------------------
 %%% Created :  by comptekki May 12, 2010
-%%% Desc.   : erlang based utility to track pages printed
+%%% Desc.   : erlang based utility to track pages printed.
 %%%
 %%% @author comptekki
 %%%
 %%% @doc	pgprt is an erlang based utility to track pages printed on
-%%%			a printer by scraping page total from printer
+%%%			a printer by scraping page total from printer.
 %%%
-%%%			Scraped total goes in to a postgresql table
+%%%			Scraped total goes in to a postgresql table.
 %%% @end
 %%%
 %%%-------------------------------------------------------------------
