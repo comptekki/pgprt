@@ -1,0 +1,10 @@
+prt.hrl - version 1.0
+==============
+
+erlang based utility to track pages printed on a printer by
+scraping page total from printer 
+
+Requirements
+==============
+1. erlang
+2. http://code.google.com/p/erlang-psql-driver/
