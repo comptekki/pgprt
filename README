@@ -12,7 +12,7 @@ Requirements
 4. create prt.hrl with this information filled out properly:
 
 -define(MAGIC_LINE_NUMBER, 208).
--define(URL, "http://192.168.1.1/").
+-define(URL, "http://192.168.1.1").
 -define(HOST, "localhost").
 -define(DB, "").
 -define(USERNAME, "").
