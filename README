@@ -7,4 +7,5 @@ scraping page total from printer
 Requirements
 ==============
 1. erlang
-2. http://code.google.com/p/erlang-psql-driver/
+2. postgresql
+3. http://code.google.com/p/erlang-psql-driver/
