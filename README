@@ -11,11 +11,9 @@ Requirements
 3. http://code.google.com/p/erlang-psql-driver/
 4. create prt.hrl with this information filled out properly:
 
-<pre>
 -define(MAGIC_LINE_NUMBER, 208).
 -define(URL, "http://192.168.1.1/").
 -define(HOST, "localhost").
 -define(DB, "").
 -define(USERNAME, "").
 -define(PASSWORD, "").
-</pre>
