@@ -17,7 +17,7 @@
 
 -export([
 	start/0, stop/1, stop/0, init/0, init2/0, dodrop/0, chk/0,
-	chk_pg_cnt/1, getc/0, insert_pgcnt/1,
+	chk_pg_cnt/1, getc/0, insert_pgcnt/1, run/0, wait_for_exit/0,
 	fill_table/0, chk_cons/0, get_tables/0, get_columns/1, fill_tab_t/0
 	]).
 
@@ -40,13 +40,23 @@ init2() ->
 	pgsql:terminate(Db),
 	Res.
 	
-start() ->
+	
+	start() ->
+       spawn_link(?MODULE, run, []).
+
+run() ->
 	Id_Table=ets:new(start_id_table, []),
 	{ok, TRef}=timer:apply_interval(timer:minutes(1), prt, getc, []),
 	ets:insert(Id_Table, {id, TRef}),
 	io:format("Id_Table: ~w~n", [Id_Table]),
-	io:format("Id_Table lookup: ~w~n", [ets:lookup(Id_Table, id)]).
-%	wait_for_exit().
+	io:format("Id_Table lookup: ~w~n", [ets:lookup(Id_Table, id)]),
+    wait_for_exit().
+
+wait_for_exit() ->
+       receive
+               stop ->  ok;
+               _ ->  wait_for_exit()
+       end.
 
 stop(Id_Table) ->
 	[{_,TRef}] = ets:lookup(Id_Table, id),
