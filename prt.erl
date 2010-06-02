@@ -1,5 +1,5 @@
 %%%-------------------------------------------------------------------
-%%% Created :  by comptekki May 12, 2010
+%%% Created : by comptekki May 12, 2010
 %%% Desc.   : erlang based utility to track pages printed.
 %%%
 %%% @author comptekki
