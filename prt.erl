@@ -13,6 +13,9 @@
 %%%-------------------------------------------------------------------
 -module(prt).
 
+-import(lists, [map/2, foldl/3, reverse/1, flatten/1]).
+
+
 -include("prt.hrl").
 
 -export([
@@ -52,7 +55,7 @@ run() ->
 %	Id_Table=ets:new(start_id_table, []),
 %	{ok, TRef}=
 
-	timer:apply_interval(timer:minutes(1), prt, getc, []),
+	timer:apply_interval(timer:seconds(5), prt, getc, []),
 
 %	ets:insert(Id_Table, {id, TRef}),
 %	io:format("Id_Table: ~w~n", [Id_Table]),
@@ -65,7 +68,7 @@ prt_timer_loop() ->
 			ok;
 		_ ->
 			prt_timer_loop()
-end.
+	end.
 
 stop(Id_Table) ->
 	[{_,TRef}] = ets:lookup(Id_Table, id),
@@ -92,6 +95,7 @@ getc() ->
     Lines = string:tokens(Body, "\r\n"),
     PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
 	Count=chk_pg_cnt(PageCount),
+	io:format("~p",[flatten(Count)]),
 	if
 		length(Count) == 0 ->
 			insert_pgcnt(PageCount);
@@ -145,6 +149,11 @@ fill_tab_t() ->
 	pgsql:terminate(Db),
 	ok.
 
+tot() ->
+	{ok, Db} = pgsql:connect(?HOST, ?DB, ?USERNAME, ?PASSWORD),
+	{_,[{_,_,[[Res]]}]}=pgsql:squery(Db, "SELECT count(*) FROM page_count"),
+	pgsql:terminate(Db),
+	io:format("~w~n", [Res]).
 
 f(0, A) ->
         [A];
