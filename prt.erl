@@ -20,7 +20,7 @@
 
 -export([
 	start/0, stop/1, stop/0, init/0, init2/0, dodrop/0, chk/0,
-	chk_pg_cnt/1, getc/0, insert_pgcnt/1, run/0,
+	chk_pg_cnt/1, getc/0, insert_pgcnt/1, run/0, tot/0,
 	fill_table/0, chk_cons/0, get_tables/0, get_columns/1, fill_tab_t/0
 	]).
 
@@ -91,14 +91,16 @@ get_columns(Table) ->
 	
 getc() ->
 	inets:start(),
-    {ok, {_StatusLine, _Headers, Body}} = http:request(?URL),
+    {ok, {_StatusLine, _Headers, Body}} = httpc:request(?URL),
     Lines = string:tokens(Body, "\r\n"),
     PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
 	Count=chk_pg_cnt(PageCount),
-	io:format("~p",[flatten(Count)]),
+%%	io:format("~p",[lists:flatten([tuple_to_list(erlang:localtime())|Count])]),
 	if
 		length(Count) == 0 ->
-			insert_pgcnt(PageCount);
+			insert_pgcnt(PageCount); 
+%,
+%%			io:format("~n");
 		true ->
 			[[Cpc]] = Count,
 			if
