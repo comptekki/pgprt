@@ -20,14 +20,14 @@
 
 -export([
 	start/0, stop/1, stop/0, init/0, init2/0, dodrop/0, chk/0,
-	chk_pg_cnt/1, getc/0, insert_pgcnt/1, run/0,
+	chk_pg_cnt/1, getc/0, insert_pgcnt/1, run/0, tot/0,
 	fill_table/0, chk_cons/0, get_tables/0, get_columns/1, fill_tab_t/0
 	]).
 
 init() ->
-	{ok, Db} = pgsql:connect(?HOST, ?DB, ?USERNAME, ?PASSWORD),
-	{_,[Res]}=pgsql:squery(Db, "create table page_count (page_count_id serial primary key, page_count_count integer, page_count_pdate date, page_count_ptime time)"),
-	pgsql:terminate(Db),
+	{ok, Db} = pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]),
+	{_,_,Res}=pgsql:squery(Db, "create table page_count (page_count_id serial primary key, page_count_count integer, page_count_pdate date, page_count_ptime time)"),
+	pgsql:close(Db),
 	Res.
 
 init2() ->
@@ -55,7 +55,7 @@ run() ->
 %	Id_Table=ets:new(start_id_table, []),
 %	{ok, TRef}=
 
-	timer:apply_interval(timer:seconds(5), prt, getc, []),
+	timer:apply_interval(timer:seconds(?SECONDS), prt, getc, []),
 
 %	ets:insert(Id_Table, {id, TRef}),
 %	io:format("Id_Table: ~w~n", [Id_Table]),
@@ -91,22 +91,20 @@ get_columns(Table) ->
 	
 getc() ->
 	inets:start(),
-    {ok, {_StatusLine, _Headers, Body}} = http:request(?URL),
+    {ok, {_StatusLine, _Headers, Body}} = httpc:request(?URL),
     Lines = string:tokens(Body, "\r\n"),
     PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
 	Count=chk_pg_cnt(PageCount),
-	io:format("~p",[flatten(Count)]),
-	if
-		length(Count) == 0 ->
-			insert_pgcnt(PageCount);
+%	io:format("Count: ~p~n",[Count]),
+	
+
+%%	io:format("~p",[lists:flatten([tuple_to_list(erlang:localtime())|Count])]),
+	case PageCount == Count of
 		true ->
-			[[Cpc]] = Count,
-			if
-				PageCount /=  Cpc ->
-					insert_pgcnt(PageCount);
-				true -> ok
-			end
-       end,
+			ok;
+		_ ->
+			insert_pgcnt(PageCount)
+    end,
     ok.
 
 extract_page_count("<B>Page&nbsp;Counter</B></TD><TD>" ++ Rest) ->
@@ -114,17 +112,27 @@ extract_page_count("<B>Page&nbsp;Counter</B></TD><TD>" ++ Rest) ->
        Count.
 	
 insert_pgcnt(PageCount) ->
-	{ok, Db} = pgsql:connect(?HOST, ?DB, ?USERNAME, ?PASSWORD),
+	{ok, Db} = pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]),
 	MkDate=fun(D) -> integer_to_list(erlang:element(1,D)) ++ "-" ++ integer_to_list(erlang:element(2,D)) ++ "-" ++  integer_to_list(erlang:element(3,D)) end,
 	MkTime=fun(T) -> integer_to_list(erlang:element(1,T)) ++ ":" ++ integer_to_list(erlang:element(2,T)) ++ ":" ++  integer_to_list(erlang:element(3,T)) end,
+%	Sq="insert into page_count (page_count_count,page_count_pdate,page_count_ptime) values (" ++ integer_to_list(PageCount) ++ ",'" ++ MkDate(erlang:date()) ++ "','"++ MkTime(erlang:time()) ++ "')",
+%	io:format("insert: ~p~n",[Sq]),
 	pgsql:squery(Db, "insert into page_count (page_count_count,page_count_pdate,page_count_ptime) values (" ++ integer_to_list(PageCount) ++ ",'" ++ MkDate(erlang:date()) ++ "','"++ MkTime(erlang:time()) ++ "')"),
-	pgsql:terminate(Db).
+	pgsql:close(Db).
 
 chk_pg_cnt(PageCount) ->
-	{ok, Db} = pgsql:connect(?HOST, ?DB, ?USERNAME, ?PASSWORD),
-	{_,[{_,_,Res}]}=pgsql:squery(Db, "SELECT page_count_count FROM page_count where page_count_count=" ++ integer_to_list(PageCount)),
-	pgsql:terminate(Db),
-	Res.
+	{ok, Db} = pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]),
+%	io:format("query: ~p~n",["SELECT page_count_count FROM page_count where page_count_count=" ++ integer_to_list(PageCount)]),
+	{_,_,Res}=pgsql:squery(Db, "SELECT page_count_count FROM page_count where page_count_count=" ++ integer_to_list(PageCount)),
+%	io:format("Res: ~p~n",[Res]),
+	case length(Res) of
+		0 -> Ret=0;
+		_ ->
+			[{Res2}]=Res,
+			Ret=list_to_integer(binary_to_list(Res2))
+	end,
+	pgsql:close(Db),
+	Ret.
 
 % {ok,[{"SELECT", [{desc,2,"count",int4,text,4,-1,16407}], [[6169]]}]}
       
