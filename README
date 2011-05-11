@@ -35,3 +35,7 @@ yaws -r prt
 
 
 prt will check every 5 seconds to add any new print jobs to DB.
+
+see pagecount.erl repo to view the print job daily totals
+
+see ypg.erl repo to see how to view individual print jobs
