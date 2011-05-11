@@ -22,3 +22,14 @@ Requirements
 -define(USERNAME, "").
 -define(PASSWORD, "").
 -define(SECONDS, 5).
+
+
+then in yaws.conf put this:
+
+ebin_dir = /path/to/prt/beamfile
+
+then start yaws like this:
+
+yaws -r prt
+
+then prt will check every 5 seconds to add any new print jobs to DB.
