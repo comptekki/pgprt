@@ -1,4 +1,4 @@
-prt.hrl - version 1.0
+prt.erl - version 1.0
 ==============
 
 erlang based utility to track pages printed on a printer by
