@@ -9,7 +9,11 @@ Requirements
 1. erlang
 2. postgresql
 3. https://github.com/wg/epgsql.git 
-4. create prt.hrl with this information filled out properly:
+4. create prt.hrl with information below filled out properly:
+
+%% hrl file for prt.erl
+
+-include("/usr/local/lib/yaws/include/yaws_api.hrl").
 
 -define(MAGIC_LINE_NUMBER, 208).
 -define(URL, "").
