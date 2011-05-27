@@ -44,22 +44,11 @@ init2() ->
 	
 	
 	start() ->
-%		Pid=
-
 		spawn_link(?MODULE, run, []).
-		
-%		,io:format("spawn Pid: ~w~n", [Pid]).
 
 run() ->
-%	Id_Table=ets:new(start_id_table, []),
-%	{ok, TRef}=
-
 	timer:apply_interval(timer:seconds(?SECONDS), prt, getc, []),
-
-%	ets:insert(Id_Table, {id, TRef}),
-%	io:format("Id_Table: ~w~n", [Id_Table]),
-%	io:format("Id_Table lookup: ~w~n", [ets:lookup(Id_Table, id)]),
-    prt_timer_loop().
+	prt_timer_loop().
 
 prt_timer_loop() ->
 	receive
@@ -90,21 +79,17 @@ get_columns(Table) ->
 	
 getc() ->
 	inets:start(),
-    {ok, {_StatusLine, _Headers, Body}} = httpc:request(?URL),
-    Lines = string:tokens(Body, "\r\n"),
-    PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
+	{ok, {_StatusLine, _Headers, Body}} = httpc:request(?URL),
+	Lines = string:tokens(Body, "\r\n"),
+	PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
 	Count=chk_pg_cnt(PageCount),
-%	io:format("Count: ~p~n",[Count]),
-	
-
-%%	io:format("~p",[lists:flatten([tuple_to_list(erlang:localtime())|Count])]),
 	case PageCount == Count of
 		true ->
 			ok;
 		_ ->
 			insert_pgcnt(PageCount)
-    end,
-    ok.
+	end,
+	ok.
 
 extract_page_count("<B>Page&nbsp;Counter</B></TD><TD>" ++ Rest) ->
        {Count, _} = string:to_integer(Rest),
@@ -121,9 +106,7 @@ insert_pgcnt(PageCount) ->
 
 chk_pg_cnt(PageCount) ->
 	{ok, Db} = pgsql:connect(?HOST, ?USERNAME, ?PASSWORD, [{database, ?DB}]),
-%	io:format("query: ~p~n",["SELECT page_count_count FROM page_count where page_count_count=" ++ integer_to_list(PageCount)]),
 	{_,_,Res}=pgsql:squery(Db, "SELECT page_count_count FROM page_count where page_count_count=" ++ integer_to_list(PageCount)),
-%	io:format("Res: ~p~n",[Res]),
 	case length(Res) of
 		0 -> Ret=0;
 		_ ->
@@ -132,10 +115,6 @@ chk_pg_cnt(PageCount) ->
 	end,
 	pgsql:close(Db),
 	Ret.
-
-% {ok,[{"SELECT", [{desc,2,"count",int4,text,4,-1,16407}], [[6169]]}]}
-      
-% {ok,[{"SELECT", [{desc,2,"count",int4,text,4,-1,16407}],[]}]}
 
 chk() ->
 	{ok, Db} = pgsql:connect(?HOST, ?DB, ?USERNAME, ?PASSWORD),
