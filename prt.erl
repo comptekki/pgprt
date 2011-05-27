@@ -94,20 +94,11 @@ getc() ->
     Lines = string:tokens(Body, "\r\n"),
     PageCount = extract_page_count(lists:nth(?MAGIC_LINE_NUMBER, Lines)),
 	Count=chk_pg_cnt(PageCount),
-<<<<<<< HEAD
 %	io:format("Count: ~p~n",[Count]),
 	
 
 %%	io:format("~p",[lists:flatten([tuple_to_list(erlang:localtime())|Count])]),
 	case PageCount == Count of
-=======
-%%	io:format("~p",[lists:flatten([tuple_to_list(erlang:localtime())|Count])]),
-	if
-		length(Count) == 0 ->
-			insert_pgcnt(PageCount); 
-%,
-%%			io:format("~n");
->>>>>>> 7c726cde5daa61a9002bc900f99cd520e69006dc
 		true ->
 			ok;
 		_ ->
